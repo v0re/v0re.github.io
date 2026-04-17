@@ -4,720 +4,469 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tools — v0re</title>
-  <meta name="description" content="Red Team Utility Tools by v0re / HNK7 Security">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #08080e;
-      --bg2: #0d0d18;
-      --bg3: #121220;
-      --border: #1c1c2e;
-      --red: #e63946;
-      --red-dim: #c1121f;
-      --red-glow: rgba(230,57,70,0.15);
-      --white: #e8e8f0;
-      --gray: #6e6e8a;
-      --gray2: #3a3a52;
-      --green: #2ecc71;
-      --yellow: #f0c040;
-      --mono: 'JetBrains Mono', monospace;
-      --sans: 'Inter', sans-serif;
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --border-hover: #2a2a3e;
+      --red: #e05c5c;
+      --red-dim: #c04040;
+      --text: #d4d4e8;
+      --muted: #5a5a7a;
+      --code-bg: #0d0d14;
+      --green: #4ade80;
+      --yellow: #fbbf24;
     }
-
-    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
-      color: var(--white);
-      font-family: var(--sans);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.6;
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(230,57,70,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(230,57,70,0.02) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── NAV ── */
+    /* NAV */
     nav {
-      position: sticky;
-      top: 0;
-      z-index: 200;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem 2.5rem;
-      background: rgba(8,8,14,0.92);
-      backdrop-filter: blur(16px);
+      padding: 14px 24px;
       border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.95);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
     }
-    .logo { font-family: var(--mono); font-size: 1.05rem; font-weight: 700; color: var(--red); text-decoration: none; }
-    .logo span { color: var(--white); }
-    .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a { font-family: var(--mono); font-size: 0.72rem; color: var(--gray); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; transition: color 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--red); }
-    .nav-mobile-toggle { display: none; background: none; border: none; color: var(--white); font-size: 1.3rem; cursor: pointer; }
+    .nav-logo { color: var(--red); font-weight: 700; font-size: 14px; text-decoration: none; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 20px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
 
-    @media (max-width: 640px) {
-      nav { padding: 0.9rem 1.2rem; }
-      .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; gap: 1rem; }
-      .nav-links.open { display: flex; }
-      .nav-mobile-toggle { display: block; }
-    }
+    /* LAYOUT */
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 
-    /* ── LAYOUT ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
-    }
+    .page-header { margin-bottom: 40px; }
+    .page-header h1 { font-size: 22px; color: var(--text); font-weight: 600; margin-bottom: 6px; }
+    .page-header p { color: var(--muted); font-size: 12px; }
 
-    .page-header { margin-bottom: 2.5rem; }
-    .page-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--red);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.3rem 0.7rem;
-      border: 1px solid rgba(230,57,70,0.3);
-      border-radius: 2px;
-      margin-bottom: 1rem;
-    }
-    .page-badge::before { content: '//'; opacity: 0.5; }
-    .page-title { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
-    .page-desc { font-size: 0.88rem; color: var(--gray); line-height: 1.8; }
-
-    /* ── TOOL CARD ── */
+    /* TOOL CARD */
     .tool-card {
-      background: var(--bg2);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 1.5rem;
-      transition: border-color 0.2s;
+      margin-bottom: 24px;
     }
-    .tool-card:hover { border-color: rgba(230,57,70,0.25); }
-
     .tool-header {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1.2rem 1.5rem;
+      gap: 12px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border);
-      background: var(--bg3);
     }
-    .tool-icon {
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      background: rgba(230,57,70,0.1);
-      border: 1px solid rgba(230,57,70,0.2);
-      border-radius: 8px;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-    .tool-meta { flex: 1; }
-    .tool-name { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; }
-    .tool-tagline { font-size: 0.78rem; color: var(--gray); }
+    .tool-icon { font-size: 18px; }
+    .tool-title { font-size: 14px; font-weight: 600; color: var(--text); }
     .tool-badge {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      padding: 0.2rem 0.5rem;
-      background: rgba(46,204,113,0.1);
-      color: var(--green);
-      border: 1px solid rgba(46,204,113,0.25);
-      border-radius: 2px;
-      letter-spacing: 0.08em;
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(224,92,92,0.12);
+      color: var(--red);
+      border: 1px solid rgba(224,92,92,0.25);
+      letter-spacing: .5px;
     }
+    .tool-body { padding: 20px; }
 
-    .tool-body { padding: 1.5rem; }
+    /* FORM */
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; letter-spacing: .5px; text-transform: uppercase; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--red-dim); }
+    .field textarea { resize: vertical; min-height: 80px; }
 
-    /* ── PRIVACY NOTICE ── */
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row .field { flex: 1; min-width: 160px; }
+
+    /* CHECKBOXES */
+    .checks { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .check-item { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--muted); user-select: none; }
+    .check-item input[type=checkbox] { accent-color: var(--red); width: 14px; height: 14px; cursor: pointer; }
+    .check-item:hover { color: var(--text); }
+
+    /* BUTTONS */
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    .btn {
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all .15s;
+      letter-spacing: .3px;
+    }
+    .btn-primary { background: var(--red); border-color: var(--red); color: #fff; }
+    .btn-primary:hover { background: var(--red-dim); border-color: var(--red-dim); }
+    .btn-ghost { background: transparent; border-color: var(--border); color: var(--muted); }
+    .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+    .btn-copy { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--green); }
+    .btn-copy:hover { background: rgba(74,222,128,0.18); }
+    .btn-copy.copied { background: rgba(74,222,128,0.2); color: var(--green); }
+
+    /* OUTPUT */
+    .output-block { display: none; }
+    .output-block.show { display: block; }
+
+    .output-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .output-label .stats { color: var(--yellow); font-size: 10px; }
+
+    pre.curl-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #a8b4d0;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    pre.curl-output .curl-cmd { color: var(--red); font-weight: 700; }
+    pre.curl-output .curl-flag { color: #79b8ff; }
+    pre.curl-output .curl-val { color: #9ecbff; }
+    pre.curl-output .curl-url { color: var(--green); font-weight: 600; }
+    pre.curl-output .curl-cookie { color: #ffab70; }
+
+    /* NOTICE */
     .notice {
       display: flex;
       align-items: flex-start;
-      gap: 0.8rem;
-      padding: 0.9rem 1.1rem;
-      background: rgba(240,192,64,0.06);
-      border: 1px solid rgba(240,192,64,0.2);
-      border-radius: 6px;
-      margin-bottom: 1.5rem;
-      font-size: 0.8rem;
-      color: var(--yellow);
-      line-height: 1.7;
-    }
-    .notice-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
-
-    /* ── URL INPUT ── */
-    .input-row {
-      display: flex;
-      gap: 0.6rem;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-    }
-    .url-input {
-      flex: 1;
-      min-width: 200px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.7rem 1rem;
-      font-family: var(--mono);
-      font-size: 0.82rem;
-      color: var(--white);
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .url-input:focus { border-color: rgba(230,57,70,0.5); }
-    .url-input::placeholder { color: var(--gray2); }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.7rem 1.2rem;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-red { background: var(--red); color: #fff; }
-    .btn-red:hover { background: var(--red-dim); box-shadow: 0 0 16px var(--red-glow); }
-    .btn-ghost { background: var(--bg3); color: var(--white); border: 1px solid var(--border); }
-    .btn-ghost:hover { border-color: rgba(230,57,70,0.4); color: var(--red); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* ── METHOD / OPTIONS ── */
-    .options-row {
-      display: flex;
-      gap: 0.6rem;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .method-select {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.6rem 0.8rem;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      color: var(--white);
-      outline: none;
-      cursor: pointer;
-    }
-    .toggle-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      color: var(--gray);
-      cursor: pointer;
-      user-select: none;
-    }
-    .toggle-label input[type="checkbox"] {
-      accent-color: var(--red);
-      width: 14px; height: 14px;
-      cursor: pointer;
-    }
-
-    /* ── OUTPUT ── */
-    .output-wrap {
-      position: relative;
-      margin-top: 0.5rem;
-    }
-    .output-label {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--gray);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .output-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
+      gap: 10px;
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.2);
       border-radius: 8px;
-      padding: 1.2rem;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      color: #a8d8a8;
-      line-height: 1.9;
-      white-space: pre-wrap;
-      word-break: break-all;
-      min-height: 120px;
-      max-height: 420px;
-      overflow-y: auto;
-      position: relative;
+      padding: 12px 14px;
+      margin-top: 16px;
+      font-size: 11px;
+      color: #a89060;
+      line-height: 1.6;
     }
-    .output-box.empty { color: var(--gray2); font-style: italic; }
+    .notice-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 
-    .copy-btn {
-      position: absolute;
-      top: 0.7rem;
-      right: 0.7rem;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.35rem 0.7rem;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--gray);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .copy-btn:hover { border-color: rgba(230,57,70,0.4); color: var(--red); }
-    .copy-btn.copied { border-color: rgba(46,204,113,0.4); color: var(--green); }
+    /* COOKIE TABLE */
+    .cookie-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 8px; }
+    .cookie-table th { color: var(--muted); text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); font-weight: 500; }
+    .cookie-table td { padding: 5px 8px; border-bottom: 1px solid rgba(30,30,46,0.5); color: var(--text); word-break: break-all; }
+    .cookie-table tr:last-child td { border-bottom: none; }
+    .cookie-name { color: #ffab70; }
+    .cookie-val { color: #9ecbff; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ── STATUS ── */
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-top: 0.8rem;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--gray);
-      min-height: 1.4rem;
-    }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray2); flex-shrink: 0; }
-    .status-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
-    .status-dot.err { background: var(--red); box-shadow: 0 0 6px var(--red); }
-    .status-dot.spin {
-      background: var(--yellow);
-      animation: pulse 0.8s ease-in-out infinite alternate;
-    }
-    @keyframes pulse { from { opacity:0.3; } to { opacity:1; } }
+    .empty-state { color: var(--muted); font-size: 12px; padding: 12px 0; font-style: italic; }
 
-    /* ── DETECTED PANEL ── */
-    .detected-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.8rem;
-      margin-bottom: 1.2rem;
+    /* MOBILE */
+    @media (max-width: 600px) {
+      nav { padding: 12px 16px; }
+      .nav-links { gap: 14px; }
+      .container { padding: 24px 16px; }
+      .row { flex-direction: column; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; text-align: center; }
     }
-    @media (max-width: 560px) { .detected-grid { grid-template-columns: 1fr; } }
-
-    .detected-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.9rem 1rem;
-    }
-    .detected-title {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--gray);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.6rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .detected-count {
-      background: rgba(230,57,70,0.1);
-      color: var(--red);
-      border-radius: 2px;
-      padding: 0.1rem 0.4rem;
-      font-size: 0.6rem;
-    }
-    .kv-list { display: flex; flex-direction: column; gap: 0.3rem; }
-    .kv-item {
-      display: flex;
-      gap: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      line-height: 1.5;
-      word-break: break-all;
-    }
-    .kv-key { color: #7ec8e3; flex-shrink: 0; }
-    .kv-val { color: var(--gray); }
-    .kv-empty { font-family: var(--mono); font-size: 0.72rem; color: var(--gray2); font-style: italic; }
-
-    /* ── FOOTER ── */
-    footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 1.5rem 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--gray);
-    }
-    @media (max-width: 560px) { footer { flex-direction: column; gap: 0.5rem; text-align: center; } }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="index.html" class="logo">v0<span>re</span></a>
-  <button class="nav-mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  <a href="index.html" class="nav-logo">v0re</a>
   <ul class="nav-links">
-    <li><a href="index.html#about">whoami</a></li>
-    <li><a href="index.html#skills">skills</a></li>
-    <li><a href="index.html#arsenal">arsenal</a></li>
+    <li><a href="index.html">home</a></li>
     <li><a href="tools.html" class="active">tools</a></li>
-    <li><a href="index.html#contact">contact</a></li>
   </ul>
 </nav>
 
-<!-- PAGE -->
-<div class="page">
+<div class="container">
   <div class="page-header">
-    <div class="page-badge">Red Team Utilities</div>
-    <h1 class="page-title">🧰 工具箱</h1>
-    <p class="page-desc">實用的資安輔助工具，純前端運作，無伺服器，無資料儲存。</p>
+    <h1>🧰 Tools</h1>
+    <p>Client-side utilities — no server, no logging, no data collection.</p>
   </div>
 
-  <!-- ── TOOL 01: cURL Converter ── -->
+  <!-- TOOL 01: cURL Converter -->
   <div class="tool-card">
     <div class="tool-header">
-      <div class="tool-icon">⚡</div>
-      <div class="tool-meta">
-        <div class="tool-name">cURL Converter</div>
-        <div class="tool-tagline">自動抓取當前瀏覽器的 Cookies 與 Headers，轉換成可直接執行的 curl 指令</div>
-      </div>
-      <div class="tool-badge">LIVE</div>
+      <span class="tool-icon">⚡</span>
+      <span class="tool-title">cURL Converter</span>
+      <span class="tool-badge">CLIENT-SIDE</span>
     </div>
-
     <div class="tool-body">
 
-      <!-- Privacy Notice -->
-      <div class="notice">
-        <div class="notice-icon">⚠️</div>
-        <div>
-          <strong>隱私聲明：</strong>本工具完全在你的瀏覽器本地運行，所有資料（Cookies、Headers）僅用於即時轉換顯示，<strong>不會上傳、記錄或儲存</strong>任何資訊。關閉頁面後所有資料即消失。
+      <div class="row">
+        <div class="field">
+          <label>Target URL</label>
+          <input type="url" id="targetUrl" placeholder="https://example.com/api/endpoint" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field" style="max-width:140px">
+          <label>Method</label>
+          <select id="method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>PATCH</option>
+            <option>HEAD</option>
+            <option>OPTIONS</option>
+          </select>
         </div>
       </div>
 
-      <!-- URL Input -->
-      <div class="input-row">
-        <input class="url-input" id="urlInput" type="text" placeholder="輸入目標 URL，例如：https://example.com/api/data" autocomplete="off" spellcheck="false">
-        <button class="btn btn-red" id="generateBtn" onclick="generate()">▸ 生成 cURL</button>
-        <button class="btn btn-ghost" onclick="clearAll()">✕ 清除</button>
+      <div class="field">
+        <label>Request Body <span style="color:var(--muted);font-size:10px">(POST / PUT / PATCH)</span></label>
+        <textarea id="body" placeholder='{"key": "value"}'></textarea>
       </div>
 
-      <!-- Options -->
-      <div class="options-row">
-        <select class="method-select" id="methodSelect">
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-          <option value="PATCH">PATCH</option>
-          <option value="HEAD">HEAD</option>
-          <option value="OPTIONS">OPTIONS</option>
-        </select>
-        <label class="toggle-label">
-          <input type="checkbox" id="chkCookies" checked>
-          包含 Cookies
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="chkUA" checked>
-          包含 User-Agent
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="chkReferer">
-          包含 Referer
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="chkInsecure">
-          -k (忽略 SSL)
-        </label>
-        <label class="toggle-label">
-          <input type="checkbox" id="chkVerbose">
-          -v (詳細模式)
-        </label>
+      <div class="field">
+        <label>Extra Headers <span style="color:var(--muted);font-size:10px">(one per line: Header-Name: value)</span></label>
+        <textarea id="extraHeaders" placeholder="Authorization: Bearer eyJ...&#10;X-Custom-Header: value" style="min-height:60px"></textarea>
       </div>
 
-      <!-- Detected Info -->
-      <div class="detected-grid">
-        <div class="detected-box">
-          <div class="detected-title">
-            偵測到的 Cookies
-            <span class="detected-count" id="cookieCount">0</span>
-          </div>
-          <div class="kv-list" id="cookieList">
-            <div class="kv-empty">尚未偵測</div>
-          </div>
-        </div>
-        <div class="detected-box">
-          <div class="detected-title">
-            瀏覽器 Headers
-            <span class="detected-count" id="headerCount">0</span>
-          </div>
-          <div class="kv-list" id="headerList">
-            <div class="kv-empty">尚未偵測</div>
-          </div>
+      <div class="field">
+        <label>Options</label>
+        <div class="checks">
+          <label class="check-item"><input type="checkbox" id="optCookies" checked> Include cookies</label>
+          <label class="check-item"><input type="checkbox" id="optUA" checked> Include User-Agent</label>
+          <label class="check-item"><input type="checkbox" id="optReferer"> Include Referer</label>
+          <label class="check-item"><input type="checkbox" id="optInsecure"> -k (insecure)</label>
+          <label class="check-item"><input type="checkbox" id="optVerbose"> -v (verbose)</label>
+          <label class="check-item"><input type="checkbox" id="optCompressed" checked> --compressed</label>
+          <label class="check-item"><input type="checkbox" id="optFollowRedirects" checked> -L (follow redirects)</label>
         </div>
       </div>
 
-      <!-- Output -->
-      <div class="output-wrap">
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generateCurl()">Generate cURL</button>
+        <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+      </div>
+
+      <!-- OUTPUT -->
+      <div class="output-block" id="outputBlock">
         <div class="output-label">
-          <span>生成的 cURL 指令</span>
+          <span>Generated Command</span>
+          <span class="stats" id="statsLabel"></span>
         </div>
-        <div class="output-box empty" id="outputBox">
-          # 輸入 URL 後點擊「生成 cURL」...
+        <pre class="curl-output" id="curlOutput"></pre>
+        <div class="btn-row" style="margin-top:10px;margin-bottom:0">
+          <button class="btn btn-copy" id="copyBtn" onclick="copyOutput()">Copy to clipboard</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('cookieSection').classList.toggle('show')">Show detected cookies</button>
         </div>
-        <button class="copy-btn" id="copyBtn" onclick="copyOutput()">
-          <span>⎘</span> <span id="copyText">複製</span>
-        </button>
+
+        <div class="output-block" id="cookieSection" style="margin-top:14px">
+          <div class="output-label"><span>Detected Cookies</span></div>
+          <div id="cookieTableWrap"></div>
+        </div>
       </div>
 
-      <!-- Status -->
-      <div class="status-bar">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusMsg">等待輸入...</span>
+      <div class="notice">
+        <span class="notice-icon">⚠️</span>
+        <span>This tool reads cookies and browser information available to JavaScript on this page. It does <strong>not</strong> capture cookies from other domains (browser same-origin policy). No data is transmitted or stored — everything runs locally in your browser.</span>
       </div>
 
     </div>
-  </div>
-
-  <!-- More tools placeholder -->
-  <div style="text-align:center; padding: 2rem; font-family: var(--mono); font-size: 0.78rem; color: var(--gray2); border: 1px dashed var(--border); border-radius: 8px;">
-    // 更多工具即將推出...
   </div>
 
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div>© 2026 v0re / HNK7 Security — All tools run client-side only.</div>
-  <div>No data is collected or stored.</div>
-</footer>
-
 <script>
-// ── 偵測當前瀏覽器資訊 ──
-function detectBrowserInfo() {
-  const ua = navigator.userAgent;
-  const lang = navigator.language || 'zh-TW';
-  const platform = navigator.platform || 'unknown';
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function escapeShell(v) {
+    return v.replace(/'/g, "'\\''");
+  }
 
-  // 解析 cookies
-  const cookies = {};
-  if (document.cookie) {
-    document.cookie.split(';').forEach(c => {
-      const [k, ...v] = c.trim().split('=');
-      if (k) cookies[k.trim()] = v.join('=').trim();
+  function parseCookies() {
+    if (!document.cookie) return [];
+    return document.cookie.split(';').map(c => {
+      const idx = c.indexOf('=');
+      if (idx === -1) return { name: c.trim(), value: '' };
+      return { name: c.slice(0, idx).trim(), value: c.slice(idx + 1).trim() };
+    }).filter(c => c.name);
+  }
+
+  function getBrowserHeaders() {
+    const h = {};
+    h['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
+    h['Accept-Language'] = navigator.language + (navigator.languages && navigator.languages.length > 1 ? ',' + navigator.languages.slice(1).map((l,i)=>`${l};q=${(0.9-i*0.1).toFixed(1)}`).join(',') : '');
+    h['Accept-Encoding'] = 'gzip, deflate, br';
+    h['Connection'] = 'keep-alive';
+    h['Upgrade-Insecure-Requests'] = '1';
+    if (document.getElementById('optUA').checked) {
+      h['User-Agent'] = navigator.userAgent;
+    }
+    if (document.getElementById('optReferer').checked && document.referrer) {
+      h['Referer'] = document.referrer;
+    }
+    return h;
+  }
+
+  // ── Main generator ────────────────────────────────────────────────────────
+  function generateCurl() {
+    const url = document.getElementById('targetUrl').value.trim();
+    if (!url) {
+      document.getElementById('targetUrl').focus();
+      return;
+    }
+
+    const method = document.getElementById('method').value;
+    const body = document.getElementById('body').value.trim();
+    const extraRaw = document.getElementById('extraHeaders').value.trim();
+    const cookies = parseCookies();
+    const browserHeaders = getBrowserHeaders();
+
+    // Parse extra headers
+    const extraHeaders = {};
+    if (extraRaw) {
+      extraRaw.split('\n').forEach(line => {
+        const idx = line.indexOf(':');
+        if (idx > 0) {
+          const k = line.slice(0, idx).trim();
+          const v = line.slice(idx + 1).trim();
+          if (k) extraHeaders[k] = v;
+        }
+      });
+    }
+
+    // Detect content-type for body
+    if (body && !extraHeaders['Content-Type']) {
+      try { JSON.parse(body); extraHeaders['Content-Type'] = 'application/json'; }
+      catch { extraHeaders['Content-Type'] = 'application/x-www-form-urlencoded'; }
+    }
+
+    // Build parts
+    const parts = ['curl'];
+
+    if (document.getElementById('optVerbose').checked) parts.push('-v');
+    if (document.getElementById('optInsecure').checked) parts.push('-k');
+    if (document.getElementById('optFollowRedirects').checked) parts.push('-L');
+    if (document.getElementById('optCompressed').checked) parts.push('--compressed');
+
+    if (method !== 'GET') parts.push(`-X ${method}`);
+
+    // Headers
+    const allHeaders = { ...browserHeaders, ...extraHeaders };
+    for (const [k, v] of Object.entries(allHeaders)) {
+      parts.push(`-H '${escapeShell(k)}: ${escapeShell(v)}'`);
+    }
+
+    // Cookies
+    if (document.getElementById('optCookies').checked && cookies.length > 0) {
+      const cookieStr = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+      parts.push(`-b '${escapeShell(cookieStr)}'`);
+    }
+
+    // Body
+    if (body) {
+      parts.push(`--data-raw '${escapeShell(body)}'`);
+    }
+
+    parts.push(`'${escapeShell(url)}'`);
+
+    // Format with line continuations
+    const formatted = parts.join(' \\\n  ');
+
+    // Syntax highlight
+    const highlighted = formatted
+      .replace(/^(curl)/, '<span class="curl-cmd">$1</span>')
+      .replace(/( -[a-zA-Z]+)/g, '<span class="curl-flag">$1</span>')
+      .replace(/(--[a-zA-Z-]+)/g, '<span class="curl-flag">$1</span>')
+      .replace(/(-H ')([^']+)'/g, (m, flag, val) => {
+        const isAuth = /^(authorization|cookie|x-auth|token)/i.test(val);
+        return `<span class="curl-flag">-H</span> '<span class="${isAuth ? 'curl-cookie' : 'curl-val'}">${val}</span>'`;
+      })
+      .replace(/(-b ')([^']+)'/g, `<span class="curl-flag">-b</span> '<span class="curl-cookie">$2</span>'`)
+      .replace(/'(https?:\/\/[^']+)'$/, `'<span class="curl-url">$1</span>'`);
+
+    document.getElementById('curlOutput').innerHTML = highlighted;
+    document.getElementById('statsLabel').textContent =
+      `${Object.keys(allHeaders).length} headers · ${cookies.length} cookies`;
+
+    // Cookie table
+    renderCookieTable(cookies);
+
+    document.getElementById('outputBlock').classList.add('show');
+    document.getElementById('copyBtn').textContent = 'Copy to clipboard';
+    document.getElementById('copyBtn').classList.remove('copied');
+  }
+
+  function renderCookieTable(cookies) {
+    const wrap = document.getElementById('cookieTableWrap');
+    if (!cookies.length) {
+      wrap.innerHTML = '<p class="empty-state">No cookies detected on this page.</p>';
+      return;
+    }
+    let html = '<table class="cookie-table"><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>';
+    cookies.forEach(c => {
+      html += `<tr><td class="cookie-name">${c.name}</td><td class="cookie-val" title="${c.value}">${c.value || '<em style="color:var(--muted)">empty</em>'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+  }
+
+  function copyOutput() {
+    const pre = document.getElementById('curlOutput');
+    const text = pre.innerText || pre.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy to clipboard';
+        btn.classList.remove('copied');
+      }, 2000);
     });
   }
 
-  // 建構可偵測的 headers
-  const headers = {
-    'User-Agent': ua,
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-    'Accept-Language': lang + ',zh;q=0.9,en;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Connection': 'keep-alive',
-    'Upgrade-Insecure-Requests': '1',
-    'Sec-Fetch-Dest': 'document',
-    'Sec-Fetch-Mode': 'navigate',
-    'Sec-Fetch-Site': 'none',
-    'Sec-Fetch-User': '?1',
-    'Cache-Control': 'max-age=0',
-  };
-
-  return { cookies, headers, ua, lang };
-}
-
-// ── 渲染偵測面板 ──
-function renderDetected(cookies, headers) {
-  const cookieList = document.getElementById('cookieList');
-  const headerList = document.getElementById('headerList');
-  const cookieCount = document.getElementById('cookieCount');
-  const headerCount = document.getElementById('headerCount');
-
-  const cookieKeys = Object.keys(cookies);
-  cookieCount.textContent = cookieKeys.length;
-  if (cookieKeys.length === 0) {
-    cookieList.innerHTML = '<div class="kv-empty">目前頁面無 Cookies（正常）</div>';
-  } else {
-    cookieList.innerHTML = cookieKeys.map(k =>
-      `<div class="kv-item"><span class="kv-key">${escHtml(k)}:</span><span class="kv-val">${escHtml(cookies[k].length > 32 ? cookies[k].slice(0,32)+'…' : cookies[k])}</span></div>`
-    ).join('');
+  function clearAll() {
+    document.getElementById('targetUrl').value = '';
+    document.getElementById('body').value = '';
+    document.getElementById('extraHeaders').value = '';
+    document.getElementById('method').value = 'GET';
+    document.getElementById('outputBlock').classList.remove('show');
+    document.getElementById('cookieSection').classList.remove('show');
   }
 
-  const headerKeys = Object.keys(headers);
-  headerCount.textContent = headerKeys.length;
-  headerList.innerHTML = headerKeys.map(k =>
-    `<div class="kv-item"><span class="kv-key">${escHtml(k)}:</span><span class="kv-val">${escHtml(headers[k].length > 40 ? headers[k].slice(0,40)+'…' : headers[k])}</span></div>`
-  ).join('');
-}
-
-// ── 主生成函式 ──
-function generate() {
-  const urlRaw = document.getElementById('urlInput').value.trim();
-  const method = document.getElementById('methodSelect').value;
-  const incCookies = document.getElementById('chkCookies').checked;
-  const incUA = document.getElementById('chkUA').checked;
-  const incReferer = document.getElementById('chkReferer').checked;
-  const insecure = document.getElementById('chkInsecure').checked;
-  const verbose = document.getElementById('chkVerbose').checked;
-
-  if (!urlRaw) {
-    setStatus('err', '請先輸入目標 URL');
-    return;
-  }
-
-  let url = urlRaw;
-  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
-  let parsedHost = '';
-  try {
-    parsedHost = new URL(url).hostname;
-  } catch(e) {
-    setStatus('err', 'URL 格式無效');
-    return;
-  }
-
-  setStatus('spin', '正在偵測瀏覽器資訊...');
-
-  const { cookies, headers, ua } = detectBrowserInfo();
-  renderDetected(cookies, headers);
-
-  // 建構 curl
-  const lines = ['curl'];
-
-  if (method !== 'GET') lines.push(`  -X ${method}`);
-  if (insecure) lines.push('  -k');
-  if (verbose) lines.push('  -v');
-
-  // Headers
-  const selectedHeaders = {};
-  if (incUA) selectedHeaders['User-Agent'] = headers['User-Agent'];
-  selectedHeaders['Accept'] = headers['Accept'];
-  selectedHeaders['Accept-Language'] = headers['Accept-Language'];
-  selectedHeaders['Accept-Encoding'] = headers['Accept-Encoding'];
-  selectedHeaders['Connection'] = headers['Connection'];
-  selectedHeaders['Upgrade-Insecure-Requests'] = headers['Upgrade-Insecure-Requests'];
-  selectedHeaders['Sec-Fetch-Dest'] = headers['Sec-Fetch-Dest'];
-  selectedHeaders['Sec-Fetch-Mode'] = headers['Sec-Fetch-Mode'];
-  selectedHeaders['Sec-Fetch-Site'] = headers['Sec-Fetch-Site'];
-  selectedHeaders['Sec-Fetch-User'] = headers['Sec-Fetch-User'];
-  selectedHeaders['Cache-Control'] = headers['Cache-Control'];
-
-  if (incReferer) selectedHeaders['Referer'] = window.location.href;
-
-  Object.entries(selectedHeaders).forEach(([k, v]) => {
-    lines.push(`  -H '${k}: ${v.replace(/'/g, "\\'")}'`);
+  // Auto-generate on Enter in URL field
+  document.getElementById('targetUrl').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateCurl();
   });
-
-  // Cookies
-  if (incCookies) {
-    const cookieKeys = Object.keys(cookies);
-    if (cookieKeys.length > 0) {
-      const cookieStr = cookieKeys.map(k => `${k}=${cookies[k]}`).join('; ');
-      lines.push(`  -b '${cookieStr.replace(/'/g, "\\'")}'`);
-    }
-  }
-
-  lines.push(`  '${url}'`);
-
-  const curlCmd = lines.join(' \\\n');
-
-  const outputBox = document.getElementById('outputBox');
-  outputBox.textContent = curlCmd;
-  outputBox.classList.remove('empty');
-
-  const cookieCount = Object.keys(cookies).length;
-  setStatus('ok', `已生成 ✓ — 目標：${parsedHost}，偵測到 ${cookieCount} 個 Cookie，${Object.keys(selectedHeaders).length} 個 Header`);
-}
-
-// ── 複製 ──
-function copyOutput() {
-  const text = document.getElementById('outputBox').textContent;
-  if (!text || text.startsWith('#')) return;
-
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyBtn');
-    const txt = document.getElementById('copyText');
-    btn.classList.add('copied');
-    txt.textContent = '已複製！';
-    setTimeout(() => { btn.classList.remove('copied'); txt.textContent = '複製'; }, 2000);
-  }).catch(() => {
-    // fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    const txt = document.getElementById('copyText');
-    txt.textContent = '已複製！';
-    setTimeout(() => { txt.textContent = '複製'; }, 2000);
-  });
-}
-
-// ── 清除 ──
-function clearAll() {
-  document.getElementById('urlInput').value = '';
-  document.getElementById('outputBox').textContent = '# 輸入 URL 後點擊「生成 cURL」...';
-  document.getElementById('outputBox').classList.add('empty');
-  document.getElementById('cookieList').innerHTML = '<div class="kv-empty">尚未偵測</div>';
-  document.getElementById('headerList').innerHTML = '<div class="kv-empty">尚未偵測</div>';
-  document.getElementById('cookieCount').textContent = '0';
-  document.getElementById('headerCount').textContent = '0';
-  setStatus('', '等待輸入...');
-}
-
-// ── 狀態列 ──
-function setStatus(type, msg) {
-  const dot = document.getElementById('statusDot');
-  const msgEl = document.getElementById('statusMsg');
-  dot.className = 'status-dot' + (type ? ' ' + type : '');
-  msgEl.textContent = msg;
-}
-
-// ── Enter 鍵觸發 ──
-document.getElementById('urlInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') generate();
-});
-
-// ── HTML 轉義 ──
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── 頁面載入時自動偵測 ──
-window.addEventListener('DOMContentLoaded', () => {
-  const { cookies, headers } = detectBrowserInfo();
-  renderDetected(cookies, headers);
-  setStatus('ok', '瀏覽器資訊已就緒，輸入 URL 即可生成 cURL');
-});
 </script>
+
 </body>
 </html>
