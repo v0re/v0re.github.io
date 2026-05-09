@@ -1,6 +1,6 @@
 # ⚡ cURL Converter
 
-**Live:** [https://v0re.github.io/tools.html](https://v0re.github.io/tools.html)
+**Live:** [https://v0re.github.io/tools/](https://v0re.github.io/tools/) (redirects to `tools.html`)
 
 Automatically detects your browser's current cookies and headers, then converts them into a ready-to-run `curl` command.
 

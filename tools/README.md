@@ -2,7 +2,7 @@
 
 Red Team utility tools — all client-side, no server, no data collection.
 
-**Live:** [https://v0re.github.io/tools.html](https://v0re.github.io/tools.html)
+**Live:** [https://v0re.github.io/tools/](https://v0re.github.io/tools/) (redirects to `tools.html`)
 
 ---
 
