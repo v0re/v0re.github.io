@@ -316,7 +316,8 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function parseCookies() {
@@ -414,12 +415,12 @@
       .replace(/^(curl)/, '<span class="curl-cmd">$1</span>')
       .replace(/( -[a-zA-Z]+)/g, '<span class="curl-flag">$1</span>')
       .replace(/(--[a-zA-Z-]+)/g, '<span class="curl-flag">$1</span>')
-      .replace(/(-H ')([^']+)'/g, (m, flag, val) => {
+      .replace(/(-H &#39;)([^]+?)&#39;/g, (m, flag, val) => {
         const isAuth = /^(authorization|cookie|x-auth|token)/i.test(val);
-        return `<span class="curl-flag">-H</span> '<span class="${isAuth ? 'curl-cookie' : 'curl-val'}">${val}</span>'`;
+        return `<span class="curl-flag">-H</span> &#39;<span class="${isAuth ? 'curl-cookie' : 'curl-val'}">${val}</span>&#39;`;
       })
-      .replace(/(-b ')([^']+)'/g, `<span class="curl-flag">-b</span> '<span class="curl-cookie">$2</span>'`)
-      .replace(/'(https?:\/\/[^']+)'$/, `'<span class="curl-url">$1</span>'`);
+      .replace(/(-b &#39;)([^]+?)&#39;/g, `<span class="curl-flag">-b</span> &#39;<span class="curl-cookie">$2</span>&#39;`)
+      .replace(/&#39;(https?:\/\/[^]+?)&#39;$/, `&#39;<span class="curl-url">$1</span>&#39;`);
 
     document.getElementById('curlOutput').innerHTML = highlighted;
     document.getElementById('statsLabel').textContent =
