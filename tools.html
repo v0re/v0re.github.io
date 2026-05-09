@@ -311,6 +311,14 @@
     return v.replace(/'/g, "'\\''");
   }
 
+  function escapeHtml(v) {
+    return String(v)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   function parseCookies() {
     if (!document.cookie) return [];
     return document.cookie.split(';').map(c => {
@@ -402,7 +410,7 @@
     const formatted = parts.join(' \\\n  ');
 
     // Syntax highlight
-    const highlighted = formatted
+    const highlighted = escapeHtml(formatted)
       .replace(/^(curl)/, '<span class="curl-cmd">$1</span>')
       .replace(/( -[a-zA-Z]+)/g, '<span class="curl-flag">$1</span>')
       .replace(/(--[a-zA-Z-]+)/g, '<span class="curl-flag">$1</span>')
@@ -433,7 +441,8 @@
     }
     let html = '<table class="cookie-table"><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>';
     cookies.forEach(c => {
-      html += `<tr><td class="cookie-name">${c.name}</td><td class="cookie-val" title="${c.value}">${c.value || '<em style="color:var(--muted)">empty</em>'}</td></tr>`;
+      const value = c.value ? escapeHtml(c.value) : '<em style="color:var(--muted)">empty</em>';
+      html += `<tr><td class="cookie-name">${escapeHtml(c.name)}</td><td class="cookie-val" title="${escapeHtml(c.value)}">${value}</td></tr>`;
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
